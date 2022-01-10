@@ -11,15 +11,15 @@ struct Job {
     html_url: String,
     labels: Vec<Label>,
 }
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let c = reqwest::blocking::Client::builder()
-        .user_agent("reqwest")
-        .build()?;
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let c = reqwest::Client::builder().user_agent("reqwest").build()?;
     let r = c
         .get("https://api.github.com/repos/awesome-jobs/vietnam/issues")
-        .send()?;
+        .send()
+        .await?;
     assert_eq!(r.status(), 200);
-    let d: Vec<Job> = r.json()?;
+    let d: Vec<Job> = r.json().await?;
     for (idx, job) in d.iter().rev().enumerate() {
         println!("{}. {} {}", idx + 1, &job.created_at[0..10], job.title);
 
